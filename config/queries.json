@@ -1,8 +1,18 @@
 [
-  {"topic": "international-law", "query": "marine carbon dioxide removal international law governance UNCLOS London Protocol"},
-  {"topic": "oae", "query": "ocean alkalinity enhancement law regulation governance permitting"},
-  {"topic": "human-rights", "query": "marine carbon dioxide removal human rights Indigenous equity justice"},
+  {"topic": "mcdr-core", "query": "marine ocean carbon dioxide removal CDR"},
+  {"topic": "international-law", "query": "marine carbon dioxide removal international law UNCLOS London Protocol governance"},
+  {"topic": "oae", "query": "ocean alkalinity enhancement enhanced weathering seawater"},
+  {"topic": "doc", "query": "direct ocean capture electrochemical seawater carbon dioxide removal"},
+  {"topic": "macroalgae", "query": "macroalgae seaweed biomass carbon dioxide removal ocean"},
+  {"topic": "fertilization", "query": "ocean iron fertilization carbon dioxide removal governance"},
+  {"topic": "upwelling", "query": "artificial upwelling downwelling ocean carbon dioxide removal"},
+  {"topic": "blue-carbon", "query": "blue carbon coastal carbon dioxide removal governance"},
+  {"topic": "offshore-ccs", "query": "offshore carbon capture storage marine geological CO2 storage law"},
   {"topic": "mrv", "query": "marine carbon dioxide removal monitoring reporting verification environmental integrity"},
-  {"topic": "canada", "query": "marine carbon dioxide removal Canada law policy regulation field trial"},
-  {"topic": "science", "query": "marine carbon dioxide removal environmental impacts efficacy permanence"}
+  {"topic": "environmental-risk", "query": "marine carbon removal environmental impact permanence leakage biodiversity"},
+  {"topic": "field-trials", "query": "marine carbon removal field trial research permitting environmental assessment"},
+  {"topic": "rights-justice", "query": "marine carbon dioxide removal human rights Indigenous equity justice participation"},
+  {"topic": "biodiversity", "query": "marine carbon dioxide removal biodiversity CBD BBNJ"},
+  {"topic": "canada", "query": "marine carbon dioxide removal Canada law policy regulation"},
+  {"topic": "comparative-law", "query": "ocean carbon dioxide removal regulation United States European Union United Kingdom"}
 ]
