@@ -27,9 +27,6 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: zotero-legal-cdr-automation
     env:
       ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
       ZOTERO_GROUP_ID: "6614701"
@@ -37,19 +34,33 @@ jobs:
       LOOKBACK_DAYS: "120"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
+      - name: Localizar projeto
+        shell: bash
+        run: |
+          PROJECT_DIR="$(dirname "$(find . -name monitor.py -type f -print -quit)")"
+          test -f "$PROJECT_DIR/monitor.py"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
       - name: Validar configurações
-        run: python -m json.tool config/collections.json >/dev/null && python -m json.tool config/queries.json >/dev/null
+        run: |
+          cd "$PROJECT_DIR"
+          python -m json.tool config/collections.json >/dev/null
+          python -m json.tool config/queries.json >/dev/null
 
       - name: Criar estrutura de coleções
         if: ${{ inputs.setup_only == true }}
-        run: python monitor.py --setup
+        run: |
+          cd "$PROJECT_DIR"
+          python monitor.py --setup
 
       - name: Procurar e atualizar o Zotero
         if: ${{ inputs.setup_only != true }}
-        run: python monitor.py ${{ inputs.dry_run == true && '--dry-run' || '' }}
+        run: |
+          cd "$PROJECT_DIR"
+          python monitor.py ${{ inputs.dry_run == true && '--dry-run' || '' }}
