@@ -1,0 +1,16 @@
+[
+  {"name": "00 — New Publications"},
+  {"name": "01 — Review Queue"},
+  {"name": "02 — Core Legal Literature"},
+  {"name": "03 — Scientific and Technical Literature"},
+  {"name": "04 — International Law"},
+  {"name": "05 — Canadian Law and Policy"},
+  {"name": "06 — Human Rights and Indigenous Peoples"},
+  {"name": "07 — Ocean Alkalinity Enhancement"},
+  {"name": "08 — Direct Ocean Capture"},
+  {"name": "09 — Macroalgae and Biomass"},
+  {"name": "10 — MRV and Environmental Integrity"},
+  {"name": "11 — Institutional Documents"},
+  {"name": "12 — Reviewed and Approved"},
+  {"name": "90 — Excluded or Tangential"}
+]
