@@ -1,0 +1,55 @@
+name: Legal CDR Zotero Monitor
+
+on:
+  schedule:
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+    inputs:
+      setup_only:
+        description: "Criar somente a estrutura de coleções"
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: "Pesquisar sem adicionar publicações"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: legal-cdr-zotero-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: zotero-legal-cdr-automation
+    env:
+      ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
+      ZOTERO_GROUP_ID: "6614701"
+      CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+      LOOKBACK_DAYS: "120"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validar configurações
+        run: python -m json.tool config/collections.json >/dev/null && python -m json.tool config/queries.json >/dev/null
+
+      - name: Criar estrutura de coleções
+        if: ${{ inputs.setup_only == true }}
+        run: python monitor.py --setup
+
+      - name: Procurar e atualizar o Zotero
+        if: ${{ inputs.setup_only != true }}
+        run: python monitor.py ${{ inputs.dry_run == true && '--dry-run' || '' }}
