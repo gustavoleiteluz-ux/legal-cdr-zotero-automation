@@ -1,0 +1,63 @@
+{
+  "relevance": {
+    "strong_phrases": [
+      "marine carbon dioxide removal", "marine carbon removal", "ocean carbon dioxide removal",
+      "ocean based carbon dioxide removal", "ocean based carbon removal", "marine CDR", "ocean CDR",
+      "ocean alkalinity enhancement", "direct ocean capture", "ocean iron fertilization",
+      "macroalgal carbon removal", "seaweed carbon removal", "artificial upwelling carbon",
+      "artificial downwelling carbon", "marine geoengineering", "ocean geoengineering"
+    ],
+    "marine_terms": [
+      "marine", "ocean", "oceanic", "seawater", "sea water", "coastal", "offshore", "seaweed",
+      "macroalgae", "macroalgal", "blue carbon", "law of the sea", "UNCLOS", "London Protocol",
+      "London Convention"
+    ],
+    "cdr_terms": [
+      "carbon dioxide removal", "carbon removal", "negative emissions", "carbon sequestration",
+      "carbon storage", "CO2 removal", "CO2 storage", "carbon capture and storage", "CCS",
+      "alkalinity enhancement", "enhanced weathering", "direct ocean capture", "electrochemical capture",
+      "ocean fertilization", "iron fertilization", "biomass sinking", "carbon sink", "geoengineering"
+    ],
+    "legal_cdr_terms": [
+      "climate intervention", "climate engineering", "carbon management", "greenhouse gas removal",
+      "research governance", "field trial", "environmental assessment", "permitting", "regulation"
+    ],
+    "climate_carbon_terms": [
+      "carbon", "CO2", "climate", "greenhouse gas", "negative emission", "geoengineering"
+    ],
+    "exclude_phrases": [
+      "extracorporeal carbon dioxide removal", "blood carbon dioxide removal", "respiratory failure",
+      "mechanical ventilation", "pulmonary", "anesthesia", "anaesthesia", "dialysis", "medical device",
+      "indoor carbon dioxide removal", "flue gas treatment", "classroom carbon dioxide", "spacecraft cabin",
+      "freshwater alkalinity enhancement", "soil carbon sequestration", "forest carbon sequestration"
+    ]
+  },
+  "collections": [
+    {"name": "02 — Core Legal Literature", "tag": "law", "keywords": ["law", "legal", "regulation", "regulatory", "governance", "treaty", "jurisdiction", "liability", "permitting", "compliance", "court", "tribunal"]},
+    {"name": "03 — Scientific and Technical Literature", "tag": "science", "keywords": ["experiment", "experimental", "model", "modelling", "modeling", "biogeochemical", "ecological", "efficacy", "technology", "technical", "engineering", "laboratory", "field study", "environmental impact"]},
+    {"name": "04 — International Law", "tag": "international-law", "keywords": ["international law", "law of the sea", "UNCLOS", "London Protocol", "London Convention", "IMO", "ITLOS", "no harm", "transboundary", "marine pollution", "state responsibility"]},
+    {"name": "05 — Canadian Law and Policy", "tag": "canada", "keywords": ["Canada", "Canadian", "CEPA", "Impact Assessment Act", "Fisheries Act", "Oceans Act", "Nova Scotia", "British Columbia"]},
+    {"name": "06 — Human Rights and Indigenous Peoples", "tag": "human-rights-indigenous", "keywords": ["human rights", "Indigenous", "First Nations", "Inuit", "Métis", "UNDRIP", "traditional knowledge", "free prior informed consent", "FPIC"]},
+    {"name": "07 — Ocean Alkalinity Enhancement", "tag": "oae", "keywords": ["ocean alkalinity enhancement", "alkalinity enhancement", "ocean liming", "enhanced weathering", "alkaline material", "alkalinization", "alkalinisation"]},
+    {"name": "08 — Direct Ocean Capture", "tag": "doc-electrochemical", "keywords": ["direct ocean capture", "electrochemical carbon removal", "electrochemical CDR", "electrochemical seawater", "bipolar membrane electrodialysis"]},
+    {"name": "09 — Macroalgae and Biomass", "tag": "macroalgae-biomass", "keywords": ["macroalgae", "macroalgal", "seaweed", "kelp", "biomass sinking", "biomass burial", "ocean biomass"]},
+    {"name": "10 — MRV and Environmental Integrity", "tag": "mrv", "keywords": ["monitoring reporting verification", "measurement reporting verification", "MRV", "environmental integrity", "additionality", "carbon accounting", "verification", "baseline", "crediting"]},
+    {"name": "11 — Institutional Documents", "tag": "institutions", "keywords": ["International Maritime Organization", "IMO", "UNEP", "IPCC", "UNESCO", "IOC", "CBD Secretariat", "UNFCCC Secretariat", "National Academies", "European Commission", "Government of Canada"]},
+    {"name": "13 — Ocean Fertilization", "tag": "ocean-fertilization", "keywords": ["ocean fertilization", "ocean fertilisation", "iron fertilization", "iron fertilisation", "nutrient fertilization", "nutrient fertilisation"]},
+    {"name": "14 — Artificial Upwelling and Downwelling", "tag": "upwelling-downwelling", "keywords": ["artificial upwelling", "artificial downwelling", "ocean upwelling", "ocean downwelling"]},
+    {"name": "15 — Blue Carbon and Coastal CDR", "tag": "blue-carbon", "keywords": ["blue carbon", "mangrove", "seagrass", "salt marsh", "coastal wetland", "coastal carbon"]},
+    {"name": "16 — Offshore CCS and Geological Storage", "tag": "offshore-ccs", "keywords": ["offshore CCS", "offshore carbon capture", "sub seabed storage", "sub seabed CO2", "geological storage", "marine geological storage", "carbon capture and storage"]},
+    {"name": "17 — Governance, Permitting and Field Trials", "tag": "governance-permitting", "keywords": ["governance", "regulation", "regulatory", "permit", "permitting", "licensing", "field trial", "field experiment", "research governance", "environmental approval", "authorization", "authorisation"]},
+    {"name": "18 — EIA, Precaution and Due Diligence", "tag": "eia-precaution-due-diligence", "keywords": ["environmental impact assessment", "EIA", "strategic environmental assessment", "precaution", "precautionary", "due diligence", "best available science", "risk assessment"]},
+    {"name": "19 — Liability, Corporate Accountability and BHR", "tag": "liability-accountability", "keywords": ["liability", "compensation", "corporate accountability", "business and human rights", "private actor", "private company", "operator responsibility", "civil responsibility", "environmental responsibility"]},
+    {"name": "20 — Biodiversity, CBD and BBNJ", "tag": "biodiversity-cbd-bbnj", "keywords": ["biodiversity", "biological diversity", "CBD", "BBNJ", "Kunming Montreal", "marine protected area", "ecosystem approach", "ecological impact"]},
+    {"name": "21 — Climate Law, UNFCCC and Paris Agreement", "tag": "climate-law", "keywords": ["climate law", "UNFCCC", "Paris Agreement", "nationally determined contribution", "NDC", "Article 6", "net zero", "climate mitigation"]},
+    {"name": "22 — Equity, Justice and Public Participation", "tag": "justice-participation", "keywords": ["equity", "justice", "just transition", "public participation", "access to information", "procedural justice", "distributional", "social acceptance", "community engagement", "benefit sharing"]},
+    {"name": "23 — Modelling, LCA and Techno-Economics", "tag": "modelling-lca-economics", "keywords": ["model", "modelling", "modeling", "life cycle assessment", "LCA", "techno economic", "technoeconomic", "cost estimate", "economic assessment", "energy requirement"]},
+    {"name": "24 — Permanence, Leakage and Reversal", "tag": "permanence-leakage", "keywords": ["permanence", "durability", "leakage", "reversal", "outgassing", "retention time", "storage duration", "carbon removal durability"]},
+    {"name": "25 — Shipping and Cross-Border CO2 Transport", "tag": "shipping-co2-transport", "keywords": ["CO2 transport", "carbon dioxide transport", "CO2 shipping", "ship transport", "cross border CO2", "transboundary CO2", "export of CO2", "marine transport"]},
+    {"name": "26 — United States Law and Policy", "tag": "us", "keywords": ["United States", "U.S.", "US law", "federal law", "Clean Water Act", "Marine Protection Research and Sanctuaries Act", "EPA", "NOAA"]},
+    {"name": "27 — European Union and United Kingdom", "tag": "eu-uk", "keywords": ["European Union", "EU law", "European Commission", "United Kingdom", "UK law", "OSPAR", "North Sea"]},
+    {"name": "28 — Comparative and Other National Approaches", "tag": "comparative-national", "keywords": ["comparative law", "comparative governance", "national law", "domestic law", "Australia", "New Zealand", "Japan", "China", "Singapore", "Norway", "Iceland", "Netherlands"]}
+  ]
+}
