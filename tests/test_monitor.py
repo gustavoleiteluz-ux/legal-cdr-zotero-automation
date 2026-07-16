@@ -64,12 +64,14 @@ class ClassifierTests(unittest.TestCase):
         self.assertEqual("2021-01-01", start)
         self.assertEqual("2025-12-31", end)
         self.assertEqual("2021–2025", label)
-        self.assertGreater(count, 80)
+        self.assertEqual(7, count)
 
-    def test_historical_cycle_has_open_ended_oldest_window(self):
-        windows = [historical_period(date(2026, 7, 16).fromordinal(date(2026, 7, 16).toordinal() + day))
-                   for day in range(100)]
-        self.assertTrue(any(start is None and end == "1599-12-31" for start, end, _, _ in windows))
+    def test_historical_cycle_covers_exactly_1991_to_2025(self):
+        windows = [historical_period(date.fromordinal(date(2026, 7, 16).toordinal() + day))
+                   for day in range(7)]
+        self.assertEqual("1991-01-01", windows[-1][0])
+        self.assertEqual("1995-12-31", windows[-1][1])
+        self.assertEqual(7, len({label for _, _, label, _ in windows}))
 
 
 if __name__ == "__main__":
