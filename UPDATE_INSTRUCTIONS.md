@@ -8,3 +8,5 @@
 6. If the preview is satisfactory, run once with both options cleared. This classifies all records currently in `00 — New Publications`.
 
 The normal daily schedule then imports new records, deduplicates them, classifies them into all applicable collections, and sends unmatched records to `90 — Excluded or Tangential`.
+
+This version includes both open and closed-access publications. DOI links lead to the official journal page; restricted PDFs are not downloaded.
