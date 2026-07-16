@@ -11,4 +11,4 @@ The normal daily schedule then imports new records, deduplicates them, classifie
 
 This version includes both open and closed-access publications. DOI links lead to the official journal page; restricted PDFs are not downloaded.
 
-It also performs an automatic historical backfill. Every daily run searches the latest 120 days plus one five-year historical window. The final window has no lower date boundary, so the historical search has no minimum publication date.
+It also performs an automatic historical backfill. Every daily run searches the latest 120 days plus one of seven five-year historical windows covering 1991–2025. The historical cycle repeats every seven days.
