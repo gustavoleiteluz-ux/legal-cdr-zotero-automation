@@ -10,3 +10,5 @@
 The normal daily schedule then imports new records, deduplicates them, classifies them into all applicable collections, and sends unmatched records to `90 — Excluded or Tangential`.
 
 This version includes both open and closed-access publications. DOI links lead to the official journal page; restricted PDFs are not downloaded.
+
+It also performs an automatic historical backfill. Every daily run searches the latest 120 days plus one five-year historical window. The final window has no lower date boundary, so the historical search has no minimum publication date.
