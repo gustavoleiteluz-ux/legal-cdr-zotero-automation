@@ -4,7 +4,7 @@ Daily automation for Zotero Group Library **6614701**. The monitor searches Open
 
 The search is not limited to open-access literature. Both open and closed-access records are retained. When a DOI is available, the Zotero URL points to the DOI resolver and therefore to the official journal landing page; the monitor never attempts to bypass a paywall or download a restricted PDF. Records are tagged `access:open`, `access:closed`, or `access:unknown`.
 
-Each scheduled run has two discovery tracks: a rolling search covering the most recent 120 days and a rotating historical search. Historical literature is processed in five-year windows from the present backwards, followed by an open-ended window for records published before 1600. There is therefore no minimum publication date. The complete historical cycle currently takes approximately 87 daily runs and then repeats, while recent literature continues to be checked every day.
+Each scheduled run has two discovery tracks: a rolling search covering the most recent 120 days and a rotating historical search. The historical component is limited to seven five-year windows: `2021–2025`, `2016–2020`, `2011–2015`, `2006–2010`, `2001–2005`, `1996–2000`, and `1991–1995`. One window is searched per day, so the complete historical cycle takes seven daily runs and then repeats. Recent literature continues to be checked every day.
 
 Records that do not meet the marine-CDR relevance threshold are removed from the inbox and placed in `90 — Excluded or Tangential`. Relevant records are also placed in `01 — Review Queue`. `12 — Reviewed and Approved` remains exclusively under human editorial control.
 
