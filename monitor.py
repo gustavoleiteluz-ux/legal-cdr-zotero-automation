@@ -297,9 +297,21 @@ def reclassify_inbox(library: ZoteroLibrary, collection_keys: dict[str, str], cl
     return len(updates), excluded, assignments
 
 
-def discover_openalex(client: HttpClient, query: str, topic: str, from_date: str, email: str) -> list[Candidate]:
-    params = urllib.parse.urlencode({"search": query, "filter": f"from_publication_date:{from_date}",
-                                     "sort": "publication_date:desc", "per-page": 100, "mailto": email})
+def period_filter(parts: list[str]) -> str | None:
+    return ",".join(part for part in parts if part) or None
+
+
+def discover_openalex(client: HttpClient, query: str, topic: str, from_date: str | None,
+                      to_date: str | None, email: str, page: int = 1) -> list[Candidate]:
+    filters = period_filter([
+        f"from_publication_date:{from_date}" if from_date else "",
+        f"to_publication_date:{to_date}" if to_date else "",
+    ])
+    request_params = {"search": query, "sort": "publication_date:desc", "per-page": 100,
+                      "page": page, "mailto": email}
+    if filters:
+        request_params["filter"] = filters
+    params = urllib.parse.urlencode(request_params)
     data, _ = client.request(f"{OPENALEX_API}?{params}")
     output = []
     for work in data.get("results", []):
@@ -318,9 +330,17 @@ def discover_openalex(client: HttpClient, query: str, topic: str, from_date: str
     return output
 
 
-def discover_crossref(client: HttpClient, query: str, topic: str, from_date: str, email: str) -> list[Candidate]:
-    params = urllib.parse.urlencode({"query.bibliographic": query, "filter": f"from-pub-date:{from_date}",
-                                     "sort": "published", "order": "desc", "rows": 100, "mailto": email})
+def discover_crossref(client: HttpClient, query: str, topic: str, from_date: str | None,
+                      to_date: str | None, email: str, page: int = 1) -> list[Candidate]:
+    filters = period_filter([
+        f"from-pub-date:{from_date}" if from_date else "",
+        f"until-pub-date:{to_date}" if to_date else "",
+    ])
+    request_params = {"query.bibliographic": query, "sort": "published", "order": "desc",
+                      "rows": 100, "offset": (page - 1) * 100, "mailto": email}
+    if filters:
+        request_params["filter"] = filters
+    params = urllib.parse.urlencode(request_params)
     data, _ = client.request(f"{CROSSREF_API}?{params}")
     output = []
     for work in data.get("message", {}).get("items", []):
@@ -352,15 +372,43 @@ def merge_candidate(current: Candidate, incoming: Candidate) -> Candidate:
     return current
 
 
+def historical_period(today: date, window_years: int = 5) -> tuple[str | None, str, str, int]:
+    """Return the day's rotating historical window, including an open-ended oldest window."""
+    windows: list[tuple[str | None, str, str]] = []
+    end_year = today.year - 1
+    while end_year >= 1600:
+        start_year = max(1600, end_year - window_years + 1)
+        windows.append((f"{start_year:04d}-01-01", f"{end_year:04d}-12-31", f"{start_year}–{end_year}"))
+        end_year = start_year - 1
+    windows.append((None, "1599-12-31", "before 1600"))
+    anchor = date(2026, 7, 16)
+    index = (today - anchor).days % len(windows)
+    start, end, label = windows[index]
+    return start, end, label, len(windows)
+
+
+def discover_period(client: HttpClient, queries: list[dict[str, str]], from_date: str | None,
+                    to_date: str | None, email: str, pages: int = 1) -> list[Candidate]:
+    discovered: list[Candidate] = []
+    for rule in queries:
+        for page in range(1, pages + 1):
+            discovered.extend(discover_openalex(client, rule["query"], rule["topic"], from_date, to_date, email, page))
+            discovered.extend(discover_crossref(client, rule["query"], rule["topic"], from_date, to_date, email, page))
+    return discovered
+
+
 def load_json(name: str) -> Any:
     return json.loads((CONFIG / name).read_text(encoding="utf-8"))
 
 
 def write_summary(found: int, created: int, skipped: int, classified: int, excluded: int,
-                  assignments: Counter[str], dry_run: bool) -> None:
+                  assignments: Counter[str], dry_run: bool, historical_label: str,
+                  historical_cycle: int) -> None:
     lines = ["## Legal CDR Zotero Monitor", "", f"- Candidates retrieved: **{found}**",
              f"- New Zotero records: **{created}**", f"- Duplicates or previously known: **{skipped}**",
              f"- Inbox records classified: **{classified}**", f"- Sent to Excluded or Tangential: **{excluded}**"]
+    lines.extend([f"- Historical window searched today: **{historical_label}**",
+                  f"- Full historical cycle: **{historical_cycle} daily windows**"])
     if dry_run:
         lines.append("- Mode: **dry run — no Zotero records changed**")
     if assignments:
@@ -396,11 +444,11 @@ def main() -> int:
 
     classifier = Classifier(load_json("classification.json"))
     queries = load_json("queries.json")
-    from_date = (date.today() - timedelta(days=lookback_days)).isoformat()
-    discovered: list[Candidate] = []
-    for rule in queries:
-        discovered.extend(discover_openalex(client, rule["query"], rule["topic"], from_date, email))
-        discovered.extend(discover_crossref(client, rule["query"], rule["topic"], from_date, email))
+    today = date.today()
+    recent_from = (today - timedelta(days=lookback_days)).isoformat()
+    historical_from, historical_to, historical_label, historical_cycle = historical_period(today)
+    discovered = discover_period(client, queries, recent_from, None, email)
+    discovered.extend(discover_period(client, queries, historical_from, historical_to, email))
     unique: dict[str, Candidate] = {}
     for candidate in discovered:
         if not candidate.identity:
@@ -421,7 +469,8 @@ def main() -> int:
             classified += 1
             excluded += int(not result.relevant)
             assignments.update(result.collections)
-    write_summary(len(unique), created, len(unique) - len(new_candidates), classified, excluded, assignments, args.dry_run)
+    write_summary(len(unique), created, len(unique) - len(new_candidates), classified, excluded,
+                  assignments, args.dry_run, historical_label, historical_cycle)
     return 0
 
 
