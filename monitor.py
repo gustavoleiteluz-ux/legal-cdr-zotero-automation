@@ -372,15 +372,14 @@ def merge_candidate(current: Candidate, incoming: Candidate) -> Candidate:
     return current
 
 
-def historical_period(today: date, window_years: int = 5) -> tuple[str | None, str, str, int]:
-    """Return the day's rotating historical window, including an open-ended oldest window."""
-    windows: list[tuple[str | None, str, str]] = []
+def historical_period(today: date, window_years: int = 5, window_count: int = 7) -> tuple[str, str, str, int]:
+    """Return one of seven rotating five-year historical windows."""
+    windows: list[tuple[str, str, str]] = []
     end_year = today.year - 1
-    while end_year >= 1600:
-        start_year = max(1600, end_year - window_years + 1)
+    for _ in range(window_count):
+        start_year = end_year - window_years + 1
         windows.append((f"{start_year:04d}-01-01", f"{end_year:04d}-12-31", f"{start_year}–{end_year}"))
         end_year = start_year - 1
-    windows.append((None, "1599-12-31", "before 1600"))
     anchor = date(2026, 7, 16)
     index = (today - anchor).days % len(windows)
     start, end, label = windows[index]
