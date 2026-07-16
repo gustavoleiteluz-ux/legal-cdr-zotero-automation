@@ -111,6 +111,7 @@ class Candidate:
     item_type: str
     discovery_topic: str
     source: str
+    access_status: str = "unknown"
 
     @property
     def identity(self) -> str:
@@ -118,21 +119,29 @@ class Candidate:
 
     def zotero_item(self, inbox_key: str) -> dict[str, Any]:
         item_type = "journalArticle" if self.item_type == "journalArticle" else "report"
+        publisher_url = f"https://doi.org/{self.doi}" if self.doi else self.url
         item: dict[str, Any] = {
             "itemType": item_type,
             "title": self.title,
             "creators": [{"creatorType": "author", "name": name} for name in self.authors],
             "abstractNote": self.abstract[:10000],
             "date": str(self.year) if self.year else "",
-            "url": self.url,
+            "url": publisher_url,
             "accessDate": date.today().isoformat(),
             "language": "",
             "rights": "",
-            "extra": f"Discovered by Legal CDR Monitor\nDiscovery source: {self.source}",
+            "extra": (
+                f"Discovered by Legal CDR Monitor\n"
+                f"Discovery source: {self.source}\n"
+                f"Access status: {self.access_status}\n"
+                f"Publisher landing page: {publisher_url}"
+            ),
             "tags": [
                 {"tag": "workflow:new"},
                 {"tag": f"discovery:{self.discovery_topic}"},
                 {"tag": f"source:{self.source.lower()}"},
+                {"tag": f"access:{self.access_status}"},
+                {"tag": "link:publisher"},
             ],
             "collections": [inbox_key],
         }
@@ -290,7 +299,7 @@ def reclassify_inbox(library: ZoteroLibrary, collection_keys: dict[str, str], cl
 
 def discover_openalex(client: HttpClient, query: str, topic: str, from_date: str, email: str) -> list[Candidate]:
     params = urllib.parse.urlencode({"search": query, "filter": f"from_publication_date:{from_date}",
-                                     "sort": "publication_date:desc", "per-page": 50, "mailto": email})
+                                     "sort": "publication_date:desc", "per-page": 100, "mailto": email})
     data, _ = client.request(f"{OPENALEX_API}?{params}")
     output = []
     for work in data.get("results", []):
@@ -300,16 +309,18 @@ def discover_openalex(client: HttpClient, query: str, topic: str, from_date: str
         primary = work.get("primary_location") or {}
         source = primary.get("source") or {}
         authors = [a.get("author", {}).get("display_name", "") for a in work.get("authorships", [])[:20]]
+        open_access = work.get("open_access") or {}
+        access_status = "open" if open_access.get("is_oa") is True else "closed" if open_access.get("is_oa") is False else "unknown"
         output.append(Candidate(title, [a for a in authors if a], work.get("publication_year") or 0,
                                 normalize_doi(work.get("doi")), work.get("doi") or primary.get("landing_page_url") or work.get("id", ""),
                                 openalex_abstract(work.get("abstract_inverted_index")), source.get("display_name") or "OpenAlex",
-                                "journalArticle" if work.get("type") == "article" else "report", topic, "OpenAlex"))
+                                "journalArticle" if work.get("type") == "article" else "report", topic, "OpenAlex", access_status))
     return output
 
 
 def discover_crossref(client: HttpClient, query: str, topic: str, from_date: str, email: str) -> list[Candidate]:
     params = urllib.parse.urlencode({"query.bibliographic": query, "filter": f"from-pub-date:{from_date}",
-                                     "sort": "published", "order": "desc", "rows": 50, "mailto": email})
+                                     "sort": "published", "order": "desc", "rows": 100, "mailto": email})
     data, _ = client.request(f"{CROSSREF_API}?{params}")
     output = []
     for work in data.get("message", {}).get("items", []):
@@ -322,8 +333,23 @@ def discover_crossref(client: HttpClient, query: str, topic: str, from_date: str
                                 normalize_doi(work.get("DOI")), work.get("URL") or "",
                                 re.sub(r"<[^>]+>", "", work.get("abstract", "")),
                                 (work.get("container-title") or ["Crossref"])[0],
-                                "journalArticle" if work.get("type") == "journal-article" else "report", topic, "Crossref"))
+                                "journalArticle" if work.get("type") == "journal-article" else "report", topic, "Crossref", "unknown"))
     return output
+
+
+def merge_candidate(current: Candidate, incoming: Candidate) -> Candidate:
+    """Merge duplicate metadata without losing OpenAlex access information."""
+    if len(incoming.abstract) > len(current.abstract):
+        current.abstract = incoming.abstract
+    if current.access_status == "unknown" and incoming.access_status != "unknown":
+        current.access_status = incoming.access_status
+    if current.publication in {"OpenAlex", "Crossref", ""} and incoming.publication:
+        current.publication = incoming.publication
+    if not current.doi and incoming.doi:
+        current.doi = incoming.doi
+    if not current.url and incoming.url:
+        current.url = incoming.url
+    return current
 
 
 def load_json(name: str) -> Any:
@@ -375,7 +401,14 @@ def main() -> int:
     for rule in queries:
         discovered.extend(discover_openalex(client, rule["query"], rule["topic"], from_date, email))
         discovered.extend(discover_crossref(client, rule["query"], rule["topic"], from_date, email))
-    unique = {candidate.identity: candidate for candidate in discovered if candidate.identity}
+    unique: dict[str, Candidate] = {}
+    for candidate in discovered:
+        if not candidate.identity:
+            continue
+        if candidate.identity in unique:
+            unique[candidate.identity] = merge_candidate(unique[candidate.identity], candidate)
+        else:
+            unique[candidate.identity] = candidate
     existing = library.existing_identities()
     new_candidates = [candidate for key, candidate in unique.items() if key not in existing]
     payloads = [candidate.zotero_item(collection_keys[INBOX]) for candidate in new_candidates]
