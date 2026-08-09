@@ -15,6 +15,11 @@ on:
         required: false
         default: false
         type: boolean
+      backfill_books:
+        description: "Buscar livros e capítulos sem limite de data (execução única)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -32,6 +37,7 @@ jobs:
       ZOTERO_GROUP_ID: "6614701"
       CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
       LOOKBACK_DAYS: "120"
+      BOOK_BACKFILL_PAGES: "1"
 
     steps:
       - uses: actions/checkout@v5
@@ -52,6 +58,8 @@ jobs:
           cd "$PROJECT_DIR"
           python -m json.tool config/collections.json >/dev/null
           python -m json.tool config/queries.json >/dev/null
+          python -m json.tool config/classification.json >/dev/null
+          python -m json.tool config/legal_sources.json >/dev/null
 
       - name: Criar estrutura de coleções
         if: ${{ inputs.setup_only == true }}
@@ -63,4 +71,4 @@ jobs:
         if: ${{ inputs.setup_only != true }}
         run: |
           cd "$PROJECT_DIR"
-          python monitor.py ${{ inputs.dry_run == true && '--dry-run' || '' }}
+          python monitor.py ${{ inputs.dry_run == true && '--dry-run' || '' }} ${{ inputs.backfill_books == true && '--backfill-books' || '' }}
