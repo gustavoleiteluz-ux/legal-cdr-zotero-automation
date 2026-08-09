@@ -2,9 +2,16 @@ import json
 import unittest
 from pathlib import Path
 
-from datetime import date
-
-from monitor import Candidate, Classifier, EXCLUDED, historical_period, merge_candidate
+from monitor import (
+    BOOKS,
+    Candidate,
+    Classifier,
+    EXCLUDED,
+    crossref_item_type,
+    curated_zotero_item,
+    merge_candidate,
+    openalex_item_type,
+)
 
 
 class ClassifierTests(unittest.TestCase):
@@ -59,19 +66,55 @@ class ClassifierTests(unittest.TestCase):
         merged = merge_candidate(openalex, crossref)
         self.assertEqual("closed", merged.access_status)
 
-    def test_historical_cycle_starts_with_previous_five_years(self):
-        start, end, label, count = historical_period(date(2026, 7, 16))
-        self.assertEqual("2021-01-01", start)
-        self.assertEqual("2025-12-31", end)
-        self.assertEqual("2021–2025", label)
-        self.assertEqual(7, count)
+    def test_book_has_native_zotero_type_and_metadata(self):
+        candidate = Candidate(
+            "Ocean Carbon Dioxide Removal", ["A. Author"], 2024, "10.1/book", "", "",
+            "Publisher", "book", "core", "Crossref", publisher="Publisher", isbn="9780000000000",
+        )
+        item = candidate.zotero_item("INBOX")
+        self.assertEqual("book", item["itemType"])
+        self.assertEqual("Publisher", item["publisher"])
+        self.assertEqual("9780000000000", item["ISBN"])
 
-    def test_historical_cycle_covers_exactly_1991_to_2025(self):
-        windows = [historical_period(date.fromordinal(date(2026, 7, 16).toordinal() + day))
-                   for day in range(7)]
-        self.assertEqual("1991-01-01", windows[-1][0])
-        self.assertEqual("1995-12-31", windows[-1][1])
-        self.assertEqual(7, len({label for _, _, label, _ in windows}))
+    def test_book_chapter_has_native_zotero_type_and_container(self):
+        candidate = Candidate(
+            "Marine CDR Governance", ["A. Author"], 2024, "10.1/chapter", "", "",
+            "Handbook of Ocean Governance", "bookSection", "law", "Crossref",
+            book_title="Handbook of Ocean Governance", publisher="Publisher", pages="25-48",
+        )
+        item = candidate.zotero_item("INBOX")
+        self.assertEqual("bookSection", item["itemType"])
+        self.assertEqual("Handbook of Ocean Governance", item["bookTitle"])
+        self.assertEqual("25-48", item["pages"])
+
+    def test_source_type_mapping(self):
+        self.assertEqual("book", openalex_item_type("book"))
+        self.assertEqual("bookSection", openalex_item_type("book-chapter"))
+        self.assertEqual("book", crossref_item_type("edited-book"))
+        self.assertEqual("bookSection", crossref_item_type("book-chapter"))
+
+    def test_curated_statute_uses_native_zotero_fields(self):
+        definition = {
+            "itemType": "statute",
+            "nameOfAct": "Oceans Act",
+            "code": "S.C. 1996, c. 31",
+            "dateEnacted": "1996",
+            "url": "https://laws-lois.justice.gc.ca/eng/acts/O-2.4/",
+            "tags": ["workflow:curated"],
+            "collections": ["31 — Canadian Legislation and Regulations"],
+        }
+        item = curated_zotero_item(definition, {"31 — Canadian Legislation and Regulations": "LAW"})
+        self.assertEqual("statute", item["itemType"])
+        self.assertEqual("Oceans Act", item["nameOfAct"])
+        self.assertEqual(["LAW"], item["collections"])
+
+    def test_curated_collection_names_exist(self):
+        root = Path(__file__).parents[1]
+        collections = {row["name"] for row in json.loads((root / "config" / "collections.json").read_text())}
+        sources = json.loads((root / "config" / "legal_sources.json").read_text())
+        self.assertIn(BOOKS, collections)
+        for source in sources:
+            self.assertTrue(set(source["collections"]).issubset(collections))
 
 
 if __name__ == "__main__":
